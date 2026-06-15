@@ -89,21 +89,22 @@ Binwalk found only 1 hit: MySQL ISAM v5 false-positive at 0xE9ADEF. No real file
 | Component     | Spec                                        |
 |---------------|---------------------------------------------|
 | WiFi          | 6E (2.4/5/6 GHz), AXE5400                 |
-| CPU           | MediaTek MT7986A (Arm Cortex-A53 quad-core, 2GHz) |
+| CPU           | Qualcomm IPQ5332 (Arm Cortex-A53 quad-core) |
 | RAM           | 512 MB DDR4                                 |
 | Flash         | 128 MB NAND                                 |
 | OS            | OpenWRT-based Linux                         |
-| Boot          | U-Boot                                      |
+| Boot          | U-Boot (Qualcomm Secure Boot, signed MBN)   |
 
-**Flash map (typical for MT7986-based EAP):**
+**Confirmed by `show modules` on live device:** `qca_ol`, `umac`, `ipq_cnss2`, `qca_nss_*` — all Qualcomm IPQ5332 kernel modules.
+
+**Flash map (from fw_data partition table, EAP723 v1.0.4 rootfs):**
 ```
-MTD0: u-boot
-MTD1: u-boot-env
-MTD2: factory (EEPROM/calibration)
-MTD3: kernel
-MTD4: rootfs (SquashFS)
-MTD5: rootfs_data (JFFS2, writable config)
+APPSBL at 0x00880000: common/openwrt-ipq5332-u-boot.mbn
+file-system at 0x01000000: squashfs rootfs
+mtdblock19: running squashfs root (decrypted V2.20 in live device)
 ```
+
+**Note:** Earlier notes incorrectly identified the SoC as MediaTek MT7986A — confirmed IPQ5332 (Qualcomm) via live kernel module inspection.
 
 ---
 
@@ -128,7 +129,7 @@ iz
 
 ## Ghidra (Recommended for decompilation)
 1. New Project → Import file → select kernel/rootfs binary
-2. Auto-analyze: Language = MIPS:BE:32 (older EAP) or ARM:LE:64 (MT7986)
+2. Auto-analyze: Language = MIPS:BE:32 (older EAP) or ARM:LE:64 (IPQ5332/EAP723)
 3. Search → Memory → `\x1f\x8b` to find compression boundaries
 
 ---
