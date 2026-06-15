@@ -1,0 +1,51 @@
+File: EAP723v2_1.2.2_[20260522-rel25172]_up_signed.bin
+Size: 29,863,640 bytes (28.48 MB)
+MD5:  6d05037a340b18eda1a44bc2c0c1cc0b
+SHA1: f010c8da2d2b337aff97b5524f9f79b73933e183
+
+=== Header Structure Analysis ===
+Bytes 0-3 (BE):   0x01c7add0 = 29,863,376
+File size:        0x01c7aed8 = 29,863,640
+Implied hdr size: 264 bytes
+  = 4 (size field) + 256 (RSA-2048 sig) + 4 (checksum?) = 264? True
+
+=== Potential RSA-2048 Signature (bytes 4-259) ===
+  First 16: d45c97659d289836d46611a77a81bc60
+  Last  16: dab4bff03a31c4d623684edf27f1ffe6
+  Bytes 260-263: 9d2f3821 = 0x9d2f3821
+
+=== Entropy Analysis (sample at 8 positions) ===
+  Offset 0x00000000: std_dev=4.2 entropy=7.951 bits/byte (random=8.0)
+  Offset 0x00010000: std_dev=4.0 entropy=7.955 bits/byte (random=8.0)
+  Offset 0x00080000: std_dev=4.1 entropy=7.950 bits/byte (random=8.0)
+  Offset 0x00100000: std_dev=4.0 entropy=7.954 bits/byte (random=8.0)
+  Offset 0x00400000: std_dev=3.8 entropy=7.958 bits/byte (random=8.0)
+  Offset 0x00800000: std_dev=4.1 entropy=7.953 bits/byte (random=8.0)
+  Offset 0x01000000: std_dev=3.9 entropy=7.956 bits/byte (random=8.0)
+  Offset 0x01800000: std_dev=3.7 entropy=7.961 bits/byte (random=8.0)
+
+=== Cipher Mode Analysis ===
+  Repeated 16-byte blocks: 0 (0 = not ECB mode)
+
+=== XOR Brute-Force (single byte) ===
+
+=== Conclusion ===
+  Encryption: AES (CBC or CTR mode, uniform byte distribution)
+  Header: 264-byte wrapper (4-byte size + 256-byte RSA-2048 signature + 4-byte field)
+  Payload: 29,863,376 bytes AES-encrypted firmware
+
+  Next steps:
+    1. Obtain AES key from: bootloader (UART/JTAG dump), GPL source, or Omada controller
+    2. Try known key: openssl enc -d -aes-256-cbc -in payload.bin -out decrypted.bin -K <KEY> -iv <IV>
+    3. Check: https://www.tp-link.com/en/support/gpl-code/ for EAP723 GPL source
+Total size:   29,863,640 bytes
+Header size:  264 bytes
+Payload size: 29,863,376 bytes
+Written: field_size.bin (4 bytes)
+Written: rsa_signature.bin (256 bytes - potential RSA-2048 signature)
+Written: header_extra.bin (4 bytes)
+Written: payload_encrypted.bin (29,863,376 bytes - AES encrypted)
+
+To decrypt (once key is known):
+  openssl enc -d -aes-256-cbc -in payload_encrypted.bin -out payload_decrypted.bin -K <HEX_KEY> -iv <HEX_IV> -nopad
+  openssl enc -d -aes-128-cbc -in payload_encrypted.bin -out payload_decrypted.bin -K <HEX_KEY> -iv <HEX_IV> -nopad
